@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="PT">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style.css" />
+    <!-- <script type="text/javascript" src="/main.js"></script> -->
+    <title>Torre de hanoi</title>
+  </head>
+  <body>
+    <div class="hanoi">
+      <div class="disco d1">1</div>
+      <div class="disco d2">2</div>
+      <div class="disco d3">3</div>
+      <div class="disco d4">4</div>
+      <div class="disco d5">5</div>
+
+      <div class="torre" onclick="clickTorre(0)"></div>
+      <div class="torre" onclick="clickTorre(1)"></div>
+      <div class="torre" onclick="clickTorre(2)"></div>
+    </div>
+    <script>
+      let torres = [[5, 4, 3, 2, 1], [], []];
+      let posicaos = ["p1", "p2", "p3", "p4", "p5", "p0", "t1", "t2", "t3"];
+      let movimentos = []; //armazenar os movimentos feitos no jogo
+      let movimentoCont = 0;
+
+      // arruma a  visualização do jogo
+      function render() {
+        torres.forEach((torre, torreid) => {
+          //pega torre
+          torre.forEach((disco, posicao) => {
+            //  pega disco
+            let d = document.querySelector(".d" + disco);
+            posicaos.forEach((posicaos) => {
+              d.classList.remove(posicaos); // remove os classes css
+            });
+            d.classList.add("t" + (torreid + 1));
+            d.classList.add("p" + (posicao + 1));
+          });
+        });
+      }
+
+      // mover a porra toda
+      function mover(fromTorre, totorre) {
+        if (!torres[fromTorre].length) {
+          //ta vazio?
+          return;
+        }
+        let disco = torres[fromTorre].pop();
+        if (torres[totorre].length) {
+          if (torres[totorre][torres[totorre].length - 1] < disco) {
+            // Ve se o disco é maior que o disco que ta la
+            return torres[fromTorre].push(disco); // devolve o dico se tiver errado
+          }
+        }
+        //move para p0 para ir para cima
+        let d = document.querySelector(".d" + disco);
+        d.classList.add("p0");
+        torres[totorre].push(disco); //coloca o dico no lugar certo
+        setTimeout(render, 400);
+      }
+
+      //clicar na toore
+      function clickTorre(n) {
+        if (movimentos.length && movimentos[0].length == 1) {
+          // tem um movimento em andamento?
+          movimentos[0].push(n); // coloca a torre de destino ao movimento atual
+        } else {
+          movimentos.unshift([n]); // coloca a torre de origem ao início da lista de movimentos
+        }
+        console.log(movimentos);
+      }
+
+      //verifica se tem movimento
+      setInterval(() => {
+        if (
+          movimentos.length &&
+          movimentos[movimentos.length - 1].length == 2
+        ) {
+          // tem um movimento na lista de movimentos
+          let m = movimentos.pop(); // Remove e pega o próximo movimento da lista
+          mover(m[0], m[1]); // faz o movimento
+          movimentoCont++;
+        }
+      }, 600);
+
+      render();
+
+      function resolve(tamanho, fromTorre, totorre) {
+        console.log(tamanho);
+
+        if (tamanho == 1) {
+          // tem so 1 disco la?
+          movimentos.unshift([fromTorre, totorre]); // coloca o movimento na fila
+          movimentoCont++;
+          return;
+        }
+
+        let outra = 3 - fromTorre - totorre; // Calcula a torre (a que não é nem a torre de origem nem a de destino)
+        resolve(tamanho - 1, fromTorre, outra); // Move para a outra torre
+        movimentos.unshift([fromTorre, totorre]); // oloca o movimento na fila
+        movimentoCont++;
+        resolve(tamanho - 1, outra, totorre); // Move os discos superiores da torre "outra" para a torre certa
+      }
+
+      setTimeout(() => {
+        resolve(5, 0, 1);
+        console.log("Total de movimentos: " + movimentoCont);
+      }, 2000);
+    </script>
+  </body>
+</html>
